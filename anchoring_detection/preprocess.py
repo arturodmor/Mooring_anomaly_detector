@@ -5,18 +5,18 @@ import matplotlib.pyplot as plt
 import shutil
 from scipy.fft import fft, fftfreq
 
-class preprocess:
+class Preprocess:
 
-    def __init__(self, movements = ['Surge', 'Sway'], main_path = rf'D:\arturo_sim\simulaciones\acoplado', dataframes_surge = {}, dataframes_sway = {}):
+    def __init__(self, movements = ['Surge', 'Sway'], main_path = rf'D:\arturo_sim\simulaciones\acoplado'):
         self.movements = movements
         self.main_path = main_path
-        self.Hs =  ['Hs1','Hs2','Hs3','Hs4']
-        self.Tp = ['Tp2','Tp3','Tp4','Tp5']
-        self.direction = ['dir1','dir2','dir3','dir4','dir5']
+        self.Hs =  ['Hs1','Hs2']
+        self.Tp = ['Tp2','Tp3']
+        self.direction = ['dir1','dir2']
         self.cases = ['1','2']
-        self.dataframes_surge = dataframes_surge
-        self.dataframes_sway = dataframes_sway
-        self.signal = self.stabilizing_signal()
+        self.dataframes_surge = {}
+        self.dataframes_sway = {}
+        self.stabilizing_signal()
 
 
     def create_gid_files(self):
@@ -28,7 +28,7 @@ class preprocess:
                 for dir in self.direction:
                     for case in self.cases:
 
-                        path =  os.path.join(self.main_path,'listado', f'oc4__{h}__{t}__{dir}__{case}.gid')
+                        path =  os.path.join(self.main_path,'pruebas', f'oc4__{h}__{t}__{dir}__{case}.gid')
                         shutil.copytree(gid_template, path)
                         archivos = os.listdir(path)
                         
@@ -53,12 +53,12 @@ class preprocess:
                     for case in self.cases:
 
                         simulacion = f'oc4__{h}__{t}__{dir}__{case}'
-                        res_path = os.path.join(self.main_path,'listado',f'{simulacion}.gid',f'{simulacion}.BodyKinematics.res')
+                        res_path = os.path.join(self.main_path,'pruebas',f'{simulacion}.gid',f'{simulacion}.BodyKinematics.res')
                         with open(res_path,'rb') as res:
                             res_data = res.read().decode('utf-8', errors='ignore')
                         
                         # Write .res information in .txt
-                        txt_path = os.path.join(self.main_path,'txt',f'oc4__{h}__{t}__{dir}__{case}.txt')
+                        txt_path = os.path.join(self.main_path,'pruebas_txt',f'oc4__{h}__{t}__{dir}__{case}.txt')
                         with open(txt_path, 'w', encoding='utf-8') as txt_file:
                             txt_file.write(res_data)
 
@@ -66,9 +66,9 @@ class preprocess:
                         df = pd.read_csv(txt_path, sep='\t', header=4).iloc[:,:7]
                         for mov in self.movements:
                             if mov == 'Surge':
-                                self.dataframes_surge[simulacion] = df['Surge']
+                                self.dataframes_surge[simulacion] = df[['time[s]','Surge']]
                             else:
-                                self.dataframes_sway[simulacion] = df['Sway']
+                                self.dataframes_sway[simulacion] = df[['time[s]','Sway']]
                             
         return self.dataframes_surge, self.dataframes_sway
 
@@ -83,17 +83,27 @@ class preprocess:
         return self.dataframes_surge, self.dataframes_sway
     
 
-    def fourier_python(self,signal):
-        signal = self.signal
+    def fourier_python(self):
 
-        time = df['time[s]'].to_numpy()
+        self.stabilizing_signal()
 
-        param_row = []
         for mov in self.movements:
-            mov = df[mov].to_numpy()
+            if mov == 'Surge':
+                dataframes = self.dataframes_surge
+            else:
+                dataframes = self.dataframes_sway
 
-            # Transformada de fourier
-            fft_mov = fft(mov)
-            amplitudes =1/N * np.abs(fft_mov[0:N//2])
-            N=len(fft_mov)
-            fft_freq = fftfreq(N,0.1)[:N//2]
+            for key, df in dataframes.items():
+                mov_data = df[mov].to_numpy()
+
+                # Scipy fourier transform
+                fft_mov = fft(mov_data)
+                N = len(fft_mov)
+                fft_freq = fftfreq(N, 0.1)[:N//2]
+                amplitudes = 1/N * np.abs(fft_mov[0:N//2])
+
+                # Update df
+                df = pd.DataFrame({'Frequencies': fft_freq, 'Amplitudes': amplitudes})
+                dataframes[key] = df
+
+
