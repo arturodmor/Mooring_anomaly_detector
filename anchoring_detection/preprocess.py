@@ -7,15 +7,15 @@ from scipy.fft import fft, fftfreq
 
 class Preprocess:
 
-    def __init__(self, movements = ['Surge', 'Sway'], main_path = rf'D:\arturo_sim\simulaciones\acoplado'):
+    def __init__(self, movements = ['Surge', 'Sway'], main_path = rf'D:\arturo_sim\simulaciones\acoplado',dataframes_surge = {}, dataframes_sway ={}):
         self.movements = movements
         self.main_path = main_path
         self.Hs =  ['Hs1','Hs2']
         self.Tp = ['Tp2','Tp3']
         self.direction = ['dir1','dir2']
         self.cases = ['1','2']
-        self.dataframes_surge = {}
-        self.dataframes_sway = {}
+        self.dataframes_surge = dataframes_surge
+        self.dataframes_sway = dataframes_sway
         self.stabilizing_signal()
 
 
