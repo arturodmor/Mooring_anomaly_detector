@@ -10,9 +10,9 @@ class Preprocess:
     def __init__(self, movements = ['Surge', 'Sway'], main_path = rf'D:\arturo_sim\simulaciones\acoplado',dataframes_surge = {}, dataframes_sway ={}):
         self.movements = movements
         self.main_path = main_path
-        self.Hs =  ['Hs1','Hs2']
-        self.Tp = ['Tp2','Tp3']
-        self.direction = ['dir1','dir2']
+        self.Hs =  ['Hs1','Hs2','Hs3','Hs4']
+        self.Tp = ['Tp2','Tp3','Tp4','Tp5']
+        self.direction = ['dir1','dir2','dir3','dir4','dir5']
         self.cases = ['1','2']
         self.dataframes_surge = dataframes_surge
         self.dataframes_sway = dataframes_sway
@@ -28,7 +28,7 @@ class Preprocess:
                 for dir in self.direction:
                     for case in self.cases:
 
-                        path =  os.path.join(self.main_path,'pruebas', f'oc4__{h}__{t}__{dir}__{case}.gid')
+                        path =  os.path.join(self.main_path,'listado', f'oc4__{h}__{t}__{dir}__{case}.gid')
                         shutil.copytree(gid_template, path)
                         archivos = os.listdir(path)
                         
@@ -53,22 +53,27 @@ class Preprocess:
                     for case in self.cases:
 
                         simulacion = f'oc4__{h}__{t}__{dir}__{case}'
-                        res_path = os.path.join(self.main_path,'pruebas',f'{simulacion}.gid',f'{simulacion}.BodyKinematics.res')
-                        with open(res_path,'rb') as res:
-                            res_data = res.read().decode('utf-8', errors='ignore')
-                        
-                        # Write .res information in .txt
-                        txt_path = os.path.join(self.main_path,'pruebas_txt',f'oc4__{h}__{t}__{dir}__{case}.txt')
-                        with open(txt_path, 'w', encoding='utf-8') as txt_file:
-                            txt_file.write(res_data)
+                        res_path = os.path.join(self.main_path,'listado',f'{simulacion}.gid',f'{simulacion}.BodyKinematics.res')
+                        txt_path = os.path.join(self.main_path,'txt',f'{simulacion}.txt')
 
-                        # Store results in a dictionary of dataframes
-                        df = pd.read_csv(txt_path, sep='\t', header=4).iloc[:,:7]
-                        for mov in self.movements:
-                            if mov == 'Surge':
-                                self.dataframes_surge[simulacion] = df[['time[s]','Surge']]
-                            else:
-                                self.dataframes_sway[simulacion] = df[['time[s]','Sway']]
+                        if os.path.exists(res_path):
+
+                            with open(res_path,'rb') as res:
+                                res_data = res.read().decode('utf-8', errors='ignore')
+                            
+                            # Write .res information in .txt
+                            with open(txt_path, 'w', encoding='utf-8') as txt_file:
+                                txt_file.write(res_data)
+
+                        if os.path.exists(txt_path):
+
+                            # Store results in a dictionary of dataframes
+                            df = pd.read_csv(txt_path, sep='\t', header=4).iloc[:,:7]
+                            for mov in self.movements:
+                                if mov == 'Surge':
+                                    self.dataframes_surge[simulacion] = df[['time[s]','Surge']]
+                                else:
+                                    self.dataframes_sway[simulacion] = df[['time[s]','Sway']]
                             
         return self.dataframes_surge, self.dataframes_sway
 
