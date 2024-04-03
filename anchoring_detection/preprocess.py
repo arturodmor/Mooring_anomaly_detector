@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import shutil
 from scipy.fft import fft, fftfreq
+from fatiguepy import *
 
 class Preprocess:
 
@@ -112,3 +113,32 @@ class Preprocess:
                 dataframes[key] = df
 
 
+    def moment_python(self):
+
+        for mov in self.movements:
+
+            columns = [f'm0_{mov}',f'm2_{mov}',f'm4_{mov}']
+
+            if mov == 'Surge':
+                dataframes = self.dataframes_surge
+                surge_moments = pd.DataFrame(columns=columns)
+                moments = surge_moments
+            else:
+                dataframes = self.dataframes_sway
+                sway_moments = pd.DataFrame(columns=columns)
+                moments = sway_moments
+            
+            for key, df in dataframes.items():
+                freq = df['Frequencies'].values
+                ampl = df['Amplitudes'].values
+                m = prob_moment.Probability_Moment(ampl,freq)
+
+                m0 = m.momentn(0)
+                m2 = m.momentn(2)
+                m4 = m.momentn(4)
+
+                moments.loc[key]= [m0,m2,m4]
+        
+        moments = pd.concat([surge_moments,sway_moments],axis=1)
+
+        return moments
