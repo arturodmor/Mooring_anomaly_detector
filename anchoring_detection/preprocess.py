@@ -14,7 +14,7 @@ class Preprocess:
         self.Hs =  ['Hs1','Hs2','Hs3','Hs4']
         self.Tp = ['Tp2','Tp3','Tp4','Tp5']
         self.direction = ['dir1','dir2','dir3','dir4','dir5']
-        self.cases = ['1','2']
+        self.cases = ['1','2','3','4']
         self.dataframes_surge = dataframes_surge
         self.dataframes_sway = dataframes_sway
         self.stabilizing_signal()
