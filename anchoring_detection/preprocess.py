@@ -7,6 +7,7 @@ from scipy.fft import fft, fftfreq
 from fatiguepy import *
 
 class Preprocess:
+    "class for the processing of received signals "
 
     def __init__(self, movements = ['Surge', 'Sway'], main_path = rf'D:\arturo_sim\simulaciones\acoplado',dataframes_surge = {}, dataframes_sway ={}):
         self.movements = movements
@@ -21,6 +22,8 @@ class Preprocess:
 
 
     def create_gid_files(self):
+        """To create SeaFEM .gid folders through a template file
+        """
 
         gid_template = os.path.join(self.main_path,'oc4_0_1.gid')
 
@@ -46,6 +49,12 @@ class Preprocess:
 
 
     def extract_res_files(self):
+
+        """To transform BodyKinematics.res files in .txt, and then store dataframes in movements dictionaries
+
+        Returns:
+            Dataframes dictionaries with Surge and Sway signals
+        """
 
         # Open and extract timeseries.res information and transform in .txt file
         for h in self.Hs:
@@ -81,6 +90,12 @@ class Preprocess:
 
     def stabilizing_signal(self):
 
+        """To correct the sinking effect of the simulations and to stabilize the signals
+
+        Returns:
+            Dataframes dictionaries with Surge and Sway signals corrected
+        """
+
         for direction, dataframes in {"Surge": self.dataframes_surge, "Sway": self.dataframes_sway}.items():
             for key, df in dataframes.items():
                 for col in df.columns[1:]:
@@ -90,6 +105,12 @@ class Preprocess:
     
 
     def fourier_python(self):
+
+        """Apply fft in all time series
+
+        Returns:
+            Dataframes dictionaries with Surge and Sway spectra
+        """
 
         self.stabilizing_signal()
 
@@ -114,6 +135,12 @@ class Preprocess:
 
 
     def moment_python(self):
+
+        """Determine spectral moments for all signals
+
+        Returns:
+            Dataset with Surge and Sway m0, m2 y m4 moments
+        """
 
         for mov in self.movements:
 
@@ -141,4 +168,11 @@ class Preprocess:
         
         moments = pd.concat([surge_moments,sway_moments],axis=1)
 
-        return moments
+        cases = pd.read_csv(r'C:\Users\naval\Desktop\Arturo\Mooring_anomaly_detector\data\labels.csv', sep=';')
+
+        labels = cases.iloc[:, :3].set_index(moments.index)
+        state = cases.iloc[:, 3:].set_index(moments.index)
+
+        dataset = pd.concat([labels,moments,state],axis=1)
+
+        return dataset

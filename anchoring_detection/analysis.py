@@ -6,6 +6,9 @@ import os
 import pandas as pd
 
 class Analysis(Preprocess):
+
+    "Class to explore data behavior and representation clue information"
+
     def __init__(self, dataframes_surge=None, dataframes_sway=None, df_surge = None, df_sway = None, n_states=10, n_dirs=5):
         super().__init__(movements=['Surge', 'Sway'], main_path=rf'D:\arturo_sim\simulaciones\acoplado', dataframes_surge=dataframes_surge, dataframes_sway=dataframes_sway)
         self.df_surge = df_surge
@@ -15,6 +18,11 @@ class Analysis(Preprocess):
     
 
     def dataframe_for_analysis(self):
+        """To group all spectra movements in a unique dataframe
+
+        Returns:
+            Surge and Sway Dataframes with all spectra
+        """
 
         for mov in self.movements:
             if mov == 'Surge':
@@ -44,7 +52,12 @@ class Analysis(Preprocess):
 
 
     def plot_spectral_comparison(self,mov):
-        
+        """To represent spectral comparison with for all sea states
+
+        Returns:
+            Surge and Sway comparison graphs, for all sea states
+        """
+
         figsize = (40,40)
         hspace = 0.8
         wspace = 0.2
