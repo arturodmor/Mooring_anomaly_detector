@@ -117,7 +117,7 @@ class Models(Preprocess):
         """ To train models and do prediction with test set
 
         Returns:
-            Comparison between training and test set metrics
+            Results with test set
         """
 
         if model == "svm":
@@ -130,11 +130,18 @@ class Models(Preprocess):
         clf.fit(X_train_min_max,Y_train)
         Y_pred_test = clf.predict(X_test_min_max)
 
-        #Train metrics
-        accuracy_train = metrics.accuracy_score(Y_train,y_validate_pred)
-        precision_train = metrics.precision_score(Y_train,y_validate_pred)
-        recall_train = metrics.recall_score(Y_train,y_validate_pred)
-        f1_train = metrics.f1_score(Y_train,y_validate_pred)
+        #Test metrics
+        accuracy_test = metrics.accuracy_score(Y_test,Y_pred_test)
+        precision_test = metrics.precision_score(Y_test,Y_pred_test)
+        recall_test = metrics.recall_score(Y_test,Y_pred_test)
+        f1_test = metrics.f1_score(Y_test,Y_pred_test)
+        cm_test = metrics.confusion_matrix(Y_test,Y_pred_test)
+
+        columns = ['acurracy', 'precision','recall','f1','matriz_confusión']
+        test_metrics=pd.DataFrame(columns=columns,data=[accuracy_test,precision_test,recall_test,f1_test,cm_test])
+
+        return test_metrics
+
 
 
 
