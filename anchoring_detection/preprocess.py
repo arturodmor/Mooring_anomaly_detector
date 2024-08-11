@@ -7,21 +7,48 @@ from scipy.fft import fft, fftfreq
 from fatiguepy import *
 
 class Preprocess:
-    "class for the processing of received signals "
+    "class for the processing of received signals, transform it and determine spectra moments"
 
-    def __init__(self, movements = ['Surge', 'Sway'], main_path = rf'D:\arturo_sim\simulaciones\acoplado',dataframes_surge = {}, dataframes_sway ={}):
+    def __init__(self, movements = ['Surge', 'Sway'], main_path = None, dataframes_surge = {}, dataframes_sway = {}):
+
+        # Surge and Sway are the most relevant movements
         self.movements = movements
+
+        # To define path and data amount
         self.main_path = main_path
-        self.Hs =  ['Hs1','Hs2','Hs3','Hs4']
-        self.Tp = ['Tp2','Tp3','Tp4','Tp5']
-        self.direction = ['dir1','dir2','dir3','dir4','dir5']
-        self.cases = ['1','2','3','4']
+        self.work_definitions()
+        
+        # Sea matrix variables
+        self.Hs =  ['Hs1','Hs2','Hs3','Hs4'] # Significant waves for a concretly sea state matrix
+        self.Tp = ['Tp2','Tp3','Tp4','Tp5'] # Peak period for a concretly sea state matrix
+        self.direction = ['dir1','dir2','dir3','dir4','dir5'] # Sea directions for a concretly sea state matrix
+        self.cases = ['1','2','3','4'] # Indicate different anchor point displacements
+
+        # All states are storing in dictionary
         self.dataframes_surge = dataframes_surge
         self.dataframes_sway = dataframes_sway
-        self.stabilizing_signal()
 
+
+    def work_definitions(self,aumentation = 'yes'):
+
+        # To define path
+        base_dir = os.path.dirname(__file__)
+        if self.main_path is None:
+            self.main_path = os.path.join(base_dir, '..', 'data', 'tdyn_seafem', 'simulations')
+
+        # To define if we want to work with complete or partial dataset
+        aumentation_path = os.path.join(base_dir, '..', 'data', 'tdyn_seafem', 'aumentation_set')
+        for filename in os.listdir(aumentation_path):
+            file_aumentation = os.path.join(aumentation_path, filename)
+            file_simulation = os.path.join(self.main_path, filename)
+            if aumentation=='yes':
+                shutil.copy(file_aumentation,file_simulation)
+            elif aumentation=='no':
+                os.remove(file_simulation)
+        
 
     def create_gid_files(self):
+
         """To create SeaFEM .gid folders through a template file
         """
 
@@ -34,9 +61,8 @@ class Preprocess:
 
                         path =  os.path.join(self.main_path,'listado', f'oc4__{h}__{t}__{dir}__{case}.gid')
                         shutil.copytree(gid_template, path)
-                        archivos = os.listdir(path)
                         
-                        for archivo in archivos:
+                        for archivo in os.listdir(path):
                             if archivo.startswith('oc4_0_1'):
                                 # Replace gid name
                                 nuevo_nombre = archivo.replace('oc4_0_1',f'oc4__{h}__{t}__{dir}__{case}')
