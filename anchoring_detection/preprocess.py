@@ -5,9 +5,14 @@ import matplotlib.pyplot as plt
 import shutil
 from scipy.fft import fft, fftfreq
 from fatiguepy import *
+import logging
+
+
+logger = logging.Logger(__name__)
+
 
 class Preprocess:
-    "class for the processing of received signals, transform it and determine spectra moments"
+    """class for the processing of received signals, transform it and determine spectra moments"""
 
     def __init__(self, movements = ['Surge', 'Sway'], main_path = None, dataframes_surge = {}, dataframes_sway = {}):
 
@@ -30,21 +35,36 @@ class Preprocess:
 
 
     def work_definitions(self,aumentation = 'yes'):
+        
+        """To define main path and signal dataset
+
+        Args:
+            aumentation(str): To select whether we work with default set (no) or with the data increase to reduce overfitting (yes)
+
+        Returns:
+            The update (or not) of signals in simulations folder
+        """
 
         # To define path
         base_dir = os.path.dirname(__file__)
-        if self.main_path is None:
-            self.main_path = os.path.join(base_dir, '..', 'data', 'tdyn_seafem', 'simulations')
+        self.main_path = os.path.join(base_dir, '..', 'data', 'tdyn_seafem', 'simulations')
 
         # To define if we want to work with complete or partial dataset
         aumentation_path = os.path.join(base_dir, '..', 'data', 'tdyn_seafem', 'aumentation_set')
-        for filename in os.listdir(aumentation_path):
-            file_aumentation = os.path.join(aumentation_path, filename)
-            file_simulation = os.path.join(self.main_path, filename)
-            if aumentation=='yes':
-                shutil.copy(file_aumentation,file_simulation)
-            elif aumentation=='no':
-                os.remove(file_simulation)
+        
+        try:
+            for filename in os.listdir(aumentation_path):
+                file_aumentation = os.path.join(aumentation_path, filename)
+                file_simulation = os.path.join(self.main_path, filename)
+                if aumentation=='yes':
+                    shutil.copy(file_aumentation,file_simulation)
+                elif aumentation=='no':
+                    os.remove(file_simulation)
+                else:
+                    raise ValueError(f"Value error: {aumentation}")
+                
+        except ValueError as e:
+            logger.error(f"{e}. Only allowed 'yes' or 'no' ")
         
 
     def create_gid_files(self):
