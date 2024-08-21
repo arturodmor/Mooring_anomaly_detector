@@ -148,7 +148,7 @@ class Preprocess:
                     df[col] = df[col] - df[col].mean()
             
 
-    def fourier_python(self):
+    def fourier(self):
 
         """Apply fft in all time series
 
@@ -176,7 +176,7 @@ class Preprocess:
                 dataframes[key] = df
 
 
-    def moment_python(self):
+    def moment_dataset(self):
 
         """Determine spectral moments for all signals
 
@@ -186,7 +186,7 @@ class Preprocess:
 
         for mov in self.movements:
 
-            columns = [f'm0_{mov}',f'm2_{mov}',f'm4_{mov}']
+            columns = [f'm0_{mov}']
 
             if mov == 'Surge':
                 dataframes = self.dataframes_surge
@@ -203,10 +203,10 @@ class Preprocess:
                 m = prob_moment.Probability_Moment(ampl,freq)
 
                 m0 = m.momentn(0)
-                m2 = m.momentn(2)
-                m4 = m.momentn(4)
+                #m2 = m.momentn(2) # redundant information
+                #m4 = m.momentn(4) # redundant information
 
-                moments.loc[key]= [m0,m2,m4]
+                moments.loc[key]= [m0]
         
         moments = pd.concat([surge_moments,sway_moments],axis=1)
 
@@ -216,5 +216,6 @@ class Preprocess:
         state = cases.iloc[:, 3:].set_index(moments.index)
 
         dataset = pd.concat([labels,moments,state],axis=1)
+        dataset.to_pickle(os.path.join(self.base_dir,'..','data','dataframe.pkl'))
 
         return dataset
