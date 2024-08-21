@@ -9,15 +9,15 @@ class Analysis(Preprocess):
 
     "Class to explore data behavior and representation clue information"
 
-    def __init__(self, dataframes_surge=None, dataframes_sway=None, df_surge = None, df_sway = None, n_states=10, n_dirs=5):
-        super().__init__(movements=['Surge', 'Sway'], main_path=rf'D:\arturo_sim\simulaciones\acoplado', dataframes_surge=dataframes_surge, dataframes_sway=dataframes_sway)
+    def __init__(self, df_surge = None, df_sway = None, n_states=10, n_dirs=5):
+        super().__init__()
         self.df_surge = df_surge
         self.df_sway = df_sway
         self.n_states = n_states
         self.n_dirs =n_dirs
     
 
-    def dataframe_for_analysis(self):
+    def dataframe_for_analysis(self,domain = 'time[s]'):
         """To group all spectra movements in a unique dataframe
 
         Returns:
@@ -32,26 +32,23 @@ class Analysis(Preprocess):
 
             # Group the data in one unique dataframe
             df= pd.concat(dataframes.values(), axis=1)
-            df_freq = df.iloc[:,0]
-            df = df.drop(df.filter(like='Frequencies').columns, axis=1)
-            df.insert(0,'Frequency',df_freq)
+            df_domain = df.iloc[:,0]
+            df = df.drop(df.filter(like=domain).columns, axis=1)
+            df.insert(0,domain,df_domain)
 
             # the number of txt files is the same of dataframe amplitude columns. We are going to regroup with only one "freq_colum" because it is the same
-            path = os.path.join(self.main_path,'txt')
-            lista_archivos = os.listdir(path)
+            file_list = os.listdir(self.main_path)
 
-            if len(lista_archivos) == (len(df.columns) - 1):
-                df.columns = ['Frequency'] + lista_archivos
+            if len(file_list) == (len(df.columns) - 1):
+                df.columns = [domain] + file_list
             
             if mov == 'Surge':
                 self.df_surge = df
             else:
                 self.df_sway = df
 
-        return self.df_surge, self.df_sway
 
-
-    def plot_spectral_comparison(self,mov):
+    def plot_spectral_comparison(self,mov,domain = 'time[s]'):
         """To represent spectral comparison with for all sea states
 
         Returns:
@@ -80,8 +77,8 @@ class Analysis(Preprocess):
                     ax = plt.subplot(gs[subplot_index])
                     ax.figure.set_size_inches(15,25)
                     if filename.replace('case', '1') in df.columns and filename.replace('case', '2') in df.columns:
-                        ax.plot(df['Frequency'], df[filename.replace('case', '1')], color='b', label='Healthy')
-                        ax.plot(df['Frequency'], df[filename.replace('case', '2')], color='r', label='Dragging', alpha=0.5)
+                        ax.plot(df[domain], df[filename.replace('case', '1')], color='b', label='Healthy')
+                        ax.plot(df[domain], df[filename.replace('case', '2')], color='r', label='Dragging', alpha=0.5)
                         ax.set_xlim(0, 0.15)
                         ax.set_title(f'{h}_{t}_{dir}')
                         ax.legend(['Healthy', 'Dragging'], loc='upper right', bbox_to_anchor=(0.85, 0.9))
