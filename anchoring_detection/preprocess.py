@@ -14,12 +14,13 @@ logger = logging.Logger(__name__)
 class Preprocess:
     """class for the processing of received signals, transform it and determine spectra moments"""
 
-    def __init__(self, movements = ['Surge', 'Sway'], main_path = None, dataframes_surge = {}, dataframes_sway = {}):
+    def __init__(self, movements = ['Surge', 'Sway'], main_path = None, dataframes_surge = {}, dataframes_sway = {}, base_dir = os.path.dirname(__file__)):
 
         # Surge and Sway are the most relevant movements
         self.movements = movements
 
         # To define path and data amount
+        self.base_dir = base_dir
         self.main_path = main_path
         self.work_definitions()
         
@@ -46,11 +47,10 @@ class Preprocess:
         """
 
         # To define path
-        base_dir = os.path.dirname(__file__)
-        self.main_path = os.path.join(base_dir, '..', 'data', 'tdyn_seafem', 'simulations')
+        self.main_path = os.path.join(self.base_dir, '..', 'data', 'tdyn_seafem', 'simulations')
 
         # To define if we want to work with complete or partial dataset
-        aumentation_path = os.path.join(base_dir, '..', 'data', 'tdyn_seafem', 'aumentation_set')
+        aumentation_path = os.path.join(self.base_dir, '..', 'data', 'tdyn_seafem', 'aumentation_set')
         
         try:
             for filename in os.listdir(aumentation_path):
@@ -110,7 +110,7 @@ class Preprocess:
 
                         simulacion = f'oc4__{h}__{t}__{dir}__{case}'
                         res_path = os.path.join(self.main_path,'listado',f'{simulacion}.gid',f'{simulacion}.BodyKinematics.res')
-                        txt_path = os.path.join(self.main_path,'txt',f'{simulacion}.txt')
+                        txt_path = os.path.join(self.main_path,f'{simulacion}.txt')
 
                         if os.path.exists(res_path):
 
@@ -130,8 +130,8 @@ class Preprocess:
                                     self.dataframes_surge[simulacion] = df[['time[s]','Surge']]
                                 else:
                                     self.dataframes_sway[simulacion] = df[['time[s]','Sway']]
-                            
-        return self.dataframes_surge, self.dataframes_sway
+        
+        self.stabilizing_signal()
 
 
     def stabilizing_signal(self):
@@ -146,9 +146,7 @@ class Preprocess:
             for key, df in dataframes.items():
                 for col in df.columns[1:]:
                     df[col] = df[col] - df[col].mean()
-        
-        return self.dataframes_surge, self.dataframes_sway
-    
+            
 
     def fourier_python(self):
 
@@ -157,8 +155,6 @@ class Preprocess:
         Returns:
             Dataframes dictionaries with Surge and Sway spectra
         """
-
-        self.stabilizing_signal()
 
         for mov in self.movements:
             if mov == 'Surge':
@@ -214,7 +210,7 @@ class Preprocess:
         
         moments = pd.concat([surge_moments,sway_moments],axis=1)
 
-        cases = pd.read_csv(r'C:\Users\naval\Desktop\Arturo\Mooring_anomaly_detector\data\labels.csv', sep=';')
+        cases = pd.read_csv(os.path.join(self.base_dir,'..','data','labels.csv'), sep=';')
 
         labels = cases.iloc[:, :3].set_index(moments.index)
         state = cases.iloc[:, 3:].set_index(moments.index)
