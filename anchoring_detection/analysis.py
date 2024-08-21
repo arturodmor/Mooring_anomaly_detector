@@ -20,6 +20,9 @@ class Analysis(Preprocess):
     def dataframe_for_analysis(self,domain = 'time[s]'):
         """To group all spectra movements in a unique dataframe
 
+        Args:
+            domain(str): To stablish the study domain of the dataset ('time[s]' or 'Frequency')
+
         Returns:
             Surge and Sway Dataframes with all spectra
         """
@@ -50,6 +53,9 @@ class Analysis(Preprocess):
 
     def plot_spectral_comparison(self,mov,domain = 'time[s]'):
         """To represent spectral comparison with for all sea states
+
+        Args:
+            domain(str): To stablish the study domain of the dataset ('time[s]' or 'Frequency')
 
         Returns:
             Surge and Sway comparison graphs, for all sea states
