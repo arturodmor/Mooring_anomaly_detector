@@ -17,11 +17,11 @@ class Analysis(Preprocess):
         self.n_dirs =n_dirs
     
 
-    def dataframe_for_analysis(self,domain = 'time[s]'):
+    def dataframe_for_analysis(self,domain = 'Time'):
         """To group all spectra movements in a unique dataframe
 
         Args:
-            domain(str): To stablish the study domain of the dataset ('time[s]' or 'Frequency')
+            domain(str): To stablish the study domain of the dataset ('Time' or 'Frequency')
 
         Returns:
             Surge and Sway Dataframes with all spectra
@@ -36,26 +36,34 @@ class Analysis(Preprocess):
             # Group the data in one unique dataframe
             df= pd.concat(dataframes.values(), axis=1)
             df_domain = df.iloc[:,0]
-            df = df.drop(df.filter(like=domain).columns, axis=1)
+
+            if domain == 'Time':
+                df = df.drop(df.filter(like='time[s]').columns, axis=1)
+            elif domain == 'Frequency':
+                df = df.drop(df.filter(like='Frequencies').columns, axis=1)
+
             df.insert(0,domain,df_domain)
 
-            # the number of txt files is the same of dataframe amplitude columns. We are going to regroup with only one "freq_colum" because it is the same
-            file_list = os.listdir(self.main_path)
+            # the number of txt files is the same of dataframe amplitude columns. We are going to regroup with only one "time/frequency colum" because it is the same
+            file_list = sorted(os.listdir(self.main_path))
 
             if len(file_list) == (len(df.columns) - 1):
                 df.columns = [domain] + file_list
-            
+
             if mov == 'Surge':
                 self.df_surge = df
+                #self.df_surge.to_pickle(os.path.join(self.base_dir,'..','data','df_surge.pkl'))
             else:
                 self.df_sway = df
+                #self.df_surge.to_pickle(os.path.join(self.base_dir,'..','data','df_sway.pkl'))
 
 
-    def plot_spectral_comparison(self,mov,domain = 'time[s]'):
+
+    def plot_spectral_comparison(self,mov,domain = 'Time'):
         """To represent spectral comparison with for all sea states
 
         Args:
-            domain(str): To stablish the study domain of the dataset ('time[s]' or 'Frequency')
+            domain(str): To stablish the study domain of the dataset ('Time' or 'Frequency')
 
         Returns:
             Surge and Sway comparison graphs, for all sea states
@@ -82,11 +90,17 @@ class Analysis(Preprocess):
                     filename = f'oc4__{h}__{t}__{dir}__case.txt'
                     ax = plt.subplot(gs[subplot_index])
                     ax.figure.set_size_inches(15,25)
+
+                    # For the time being, only healthy state (1) and the first simulations of 30m dragging (2) are allowed to be compared.
                     if filename.replace('case', '1') in df.columns and filename.replace('case', '2') in df.columns:
                         ax.plot(df[domain], df[filename.replace('case', '1')], color='b', label='Healthy')
                         ax.plot(df[domain], df[filename.replace('case', '2')], color='r', label='Dragging', alpha=0.5)
-                        ax.set_xlim(0, 0.15)
-                        ax.set_title(f'{h}_{t}_{dir}')
+
+                        #this condition only makes sense in the frequency domain.
+                        if domain == 'Frequency':
+                            ax.set_xlim(0, 0.15)
+                        
+                        ax.set_title(f'{h}_{t}_{dir}') #Subplot title
                         ax.legend(['Healthy', 'Dragging'], loc='upper right', bbox_to_anchor=(0.85, 0.9))
 
                         subplot_index +=1

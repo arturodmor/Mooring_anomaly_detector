@@ -217,5 +217,3 @@ class Preprocess:
 
         dataset = pd.concat([labels,moments,state],axis=1)
         dataset.to_pickle(os.path.join(self.base_dir,'..','data','dataframe.pkl'))
-
-        return dataset
