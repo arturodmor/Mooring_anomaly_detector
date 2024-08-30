@@ -87,4 +87,28 @@ class Models(Preprocess):
 
 
 
+    def decision_boundary(self, model, X= None, y= None):
 
+        try:
+            plt.figure(figsize=(20,10))
+
+            x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+            y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+            xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01), np.arange(y_min, y_max, 0.01))
+
+            # predict the class for each mesh point
+            Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+            Z = Z.reshape(xx.shape)
+
+            # Draw decision boundaries
+            plt.contourf(xx, yy, Z, alpha=0.3)
+            scatter = plt.scatter(X[:, 0], X[:, 1], c=y, edgecolors='k', marker='o')
+
+            plt.title("Decision Boundary")
+            plt.xlabel("m0_surge")
+            plt.ylabel("m0_sway")
+            plt.legend(*scatter.legend_elements(), title="Clases")
+            plt.show()
+        
+        except Exception as e:
+            logger.error('[ERROR] Params are None. Remember to define them')
