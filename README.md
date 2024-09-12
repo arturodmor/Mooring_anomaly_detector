@@ -6,9 +6,10 @@ Anchoring_detection is a customised package of functionalities for the study of 
 
 - [Description](#Description)
 - [Installation](#installation)
-- [Uso](#uso)
-- [Contribuciones](#contribuciones)
-- [Licencia](#licencia)
+- [Package_functionalities](#Package functionalities)
+- [Notebooks_laboratory](Notebooks laboratory)
+- [Acknowledgements](#Acknowledgements)
+- [Contact](#Contact)
 
 
 ## Description
