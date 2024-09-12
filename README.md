@@ -5,9 +5,9 @@ Anchoring_detection is a customised package of functionalities for the study of 
 ## Table of contents
 
 - [Description](#Description)
-- [Installation](#installation)
-- [Functionalities](#Package functionalities)
-- [Laboratory](#Notebooks laboratory)
+- [Installation](#Installation)
+- [Functionalities](#Functionalities)
+- [Laboratory](#Laboratory)
 - [Acknowledgements](#Acknowledgements)
 - [Contact](#Contact)
 
@@ -41,7 +41,7 @@ Anchoring_detection is a customised package of functionalities for the study of 
     pip install -e .
     ```
     
-## Package functionalities
+## Functionalities
 
 ### Preprocess
 
@@ -50,7 +50,7 @@ Anchoring_detection is a customised package of functionalities for the study of 
 ### Models
 
 
-## Notebooks laboratory
+## Laboratory
 
 
 ## Acknowledgements
