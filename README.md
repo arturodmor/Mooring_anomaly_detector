@@ -1,6 +1,6 @@
 # Mooring Anchoring Detection
 
-Anchoring_detection is a customised package of functionalities for the study of signals from floating offshore wind platforms (FOWT). Through simulations of behaviour at sea, it is possible to generate a dataset in order to study a common failure mode of anchor lines: the anchoring (or Dragging) effect.
+Anchoring_detection is a customised package of functionalities for the study of signals from floating offshore wind platforms (FOWT). Through simulations of behaviour at sea, it is possible to generate a dataset in order to study a common failure mode of anchor lines: The anchoring (or Dragging) effect.
 
 ## Table of contents
 
