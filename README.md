@@ -72,4 +72,5 @@ This project has been made possible thanks to the support of the Naval Engineeri
 
 ## Contact
 
-- Mail
+- Mail --> rodriguezmoranarturo@gmail.com
+- [LinkedIn](www.linkedin.com/in/arturo-rodríguez-morán)
